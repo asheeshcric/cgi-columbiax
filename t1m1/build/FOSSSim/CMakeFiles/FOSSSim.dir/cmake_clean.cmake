@@ -1,7 +1,7 @@
 FILE(REMOVE_RECURSE
-  "CMakeFiles/FOSSSim.dir/TwoDScene.cpp.o"
   "CMakeFiles/FOSSSim.dir/ExplicitEuler.cpp.o"
   "CMakeFiles/FOSSSim.dir/SimpleGravityForce.cpp.o"
+  "CMakeFiles/FOSSSim.dir/TwoDScene.cpp.o"
   "FOSSSim.pdb"
   "FOSSSim"
 )

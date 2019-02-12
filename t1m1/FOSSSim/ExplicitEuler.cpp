@@ -1,5 +1,4 @@
 #include "ExplicitEuler.h"
-#include <iostream>
 
 bool ExplicitEuler::stepScene( TwoDScene& scene, scalar dt )
 {
@@ -14,35 +13,27 @@ bool ExplicitEuler::stepScene( TwoDScene& scene, scalar dt )
     //const VectorXs& m = scene.getM();
     // Determine if the ith particle is fixed
     // if( scene.isFixed(i) )
-    const VectorXs& x = scene.getX();
-    const VectorXs& v = scene.getV();
-    const VectorXs& F = scene.getF();
+    
+    VectorXs& x = scene.getX();
+    VectorXs& v = scene.getV();
     const VectorXs& m = scene.getM();
 
-    assert(x.rows() == v.rows() && v.rows() == m.rows()); // we need to be sure that all objects are properly
-                                              // accounted for, in position, velocity, and mass
-    int particles = scene.getNumParticles();
+    // Compute forces using start-of-step state
+    VectorXs F(x.size());
+    F.setZero();
+    scene.accumulateGradU(F);
+    // Force is negative the energy gradient
+    F *= -1.0;
+    // Zero the force for fixed DoFs
+    for( int i = 0; i < scene.getNumParticles(); ++i ) if( scene.isFixed(i) ) F.segment<2>(2*i).setZero();
 
-    int x0 = 0;
-    int x1 = 0;
-    for(int p = 0; p < particles; ++p) {
-        if ( !scene.isFixed(p) ) {
-            // Set the indices for axes 0 and 1
-            x0 = 2 * p;
-            x1 = 2 * p + 1;
+    // Step positions forward based on start-of-step velocity
+    x += dt*v;
 
-            Vector2s new_pos(x[x0] + (v[x0] * dt), x[x1] + (v[x1] * dt));
-            Vector2s new_vel(v[x0] + (dt / m[x0]) * F[x0], v[x1] + (dt / m[x1]) * F[x1]);
+    // Step velocities forward based on start-of-step forces
+    F.array() /= m.array();
+    v += dt*F;
 
-            scene.setPosition(p, new_pos);
-            scene.setVelocity(p, new_vel);
-        }
-    }
-    
+
     return true;
-}
-
-std::string ExplicitEuler::getName() const
-{
-    return "Explicit Euler";
 }
