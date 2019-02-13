@@ -1,4 +1,6 @@
 #include "ExplicitEuler.h"
+#include <iostream>
+using namespace std;
 
 bool ExplicitEuler::stepScene( TwoDScene& scene, scalar dt )
 {
@@ -18,22 +20,29 @@ bool ExplicitEuler::stepScene( TwoDScene& scene, scalar dt )
     VectorXs& v = scene.getV();
     const VectorXs& m = scene.getM();
 
-    // Compute forces using start-of-step state
+    // Create a new Force vector of the same size as x and v
     VectorXs F(x.size());
+    // Set the initial value of the Force vector to be zero
     F.setZero();
+
+    // Pass the Force vector by reference to accumulateGradU method to change its value
     scene.accumulateGradU(F);
     // Force is negative the energy gradient
     F *= -1.0;
+
     // Zero the force for fixed DoFs
     for( int i = 0; i < scene.getNumParticles(); ++i ) if( scene.isFixed(i) ) F.segment<2>(2*i).setZero();
 
-    // Step positions forward based on start-of-step velocity
+    // New position for the next time-step based on the current velocity
     x += dt*v;
 
-    // Step velocities forward based on start-of-step forces
+    // Normalize the Force vector by dividing with the mass array (done to extract the acceleration part from the Force)
     F.array() /= m.array();
+    
+    // New velocity for the next time-step based on the acceleration
     v += dt*F;
 
+    cout << "x = " << x << endl << ", v = " << v << endl << ", m = " << m << endl;
 
     return true;
 }
