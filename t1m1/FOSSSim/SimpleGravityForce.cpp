@@ -1,5 +1,10 @@
 #include "SimpleGravityForce.h"
 
+#include <iostream>
+using namespace std;
+
+// Edit this file to compute the potential energy and its gradient "F = -del(U) = mg"
+
 void SimpleGravityForce::addEnergyToTotal( const VectorXs& x, const VectorXs& v, const VectorXs& m, scalar& E )
 {
     assert( x.size() == v.size() );
@@ -7,6 +12,8 @@ void SimpleGravityForce::addEnergyToTotal( const VectorXs& x, const VectorXs& v,
     assert( x.size()%2 == 0 );
 
     // Your code goes here!
+
+    // You need to assume that zero potential is at the origin
 }
 
 void SimpleGravityForce::addGradEToTotal( const VectorXs& x, const VectorXs& v, const VectorXs& m, VectorXs& gradE )
@@ -17,4 +24,9 @@ void SimpleGravityForce::addGradEToTotal( const VectorXs& x, const VectorXs& v, 
     assert( x.size()%2 == 0 );
 
     // Your code goes here!
+
+    // Implement the formula: gradE(or del(U)) = -mg
+    for( int i = 0; i < x.size()/2; ++i ) {
+        gradE.segment<2>(2*i) -= m(2*i)*m_gravity;
+    }
 }
