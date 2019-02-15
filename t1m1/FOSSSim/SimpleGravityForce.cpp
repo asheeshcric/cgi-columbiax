@@ -14,6 +14,9 @@ void SimpleGravityForce::addEnergyToTotal( const VectorXs& x, const VectorXs& v,
     // Your code goes here!
 
     // You need to assume that zero potential is at the origin
+    for(int i = 0; i < x.size()/2; i++) {
+        E -= VectorXs(m.segment<2>(2*i).array()*m_gravity.array()).dot(x.segment<2>(2*i));
+    }
 }
 
 void SimpleGravityForce::addGradEToTotal( const VectorXs& x, const VectorXs& v, const VectorXs& m, VectorXs& gradE )
@@ -26,7 +29,7 @@ void SimpleGravityForce::addGradEToTotal( const VectorXs& x, const VectorXs& v, 
     // Your code goes here!
 
     // Implement the formula: gradE(or del(U)) = -mg
-    for( int i = 0; i < x.size()/2; ++i ) {
-        gradE.segment<2>(2*i) -= m(2*i)*m_gravity;
+    for(int i = 0; i < x.size()/2; i++) {
+        gradE.segment<2>(2*i) -= VectorXs(m.segment<2>(2*i).array() * m_gravity.array());
     }
 }
